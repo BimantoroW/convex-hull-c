@@ -5,35 +5,9 @@
 #include "fast_convex_hull.h"
 #include "window.h"
 #include "point.h"
+#include "point_renderer.h"
 
-#define N_POINT 20
-#define POINT_SIZE 4
-#define TEXTURE_W 800
-#define TEXTURE_H 600
-
-typedef struct color {
-    uint8_t r, g, b;
-} color_t;
-
-void render_texture(SDL_Renderer *renderer, SDL_Texture *texture, point_t *points, point_t *ch, int n_ch, color_t color) {
-    SDL_SetRenderTarget(renderer, texture);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    for (int i = 0; i < N_POINT; i++) {
-        SDL_FRect rect = {
-            points[i].x - POINT_SIZE / 2.0f,
-            points[i].y - POINT_SIZE / 2.0f,
-            POINT_SIZE,
-            POINT_SIZE
-        };
-        SDL_RenderFillRectF(renderer, &rect);
-    }
-
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
-    SDL_RenderDrawLinesF(renderer, (SDL_FPoint *)ch, n_ch);
-}
+#define N_POINT 30
 
 void render(SDL_Renderer *renderer, SDL_Texture *texture) {
     SDL_SetRenderTarget(renderer, NULL);
@@ -50,9 +24,7 @@ int main(void) {
 
     init_window(&window, &renderer);
 
-    SDL_Texture *points_texture = SDL_CreateTexture(
-        renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, TEXTURE_W, TEXTURE_H
-    );
+    SDL_Texture *points_texture = create_texture(renderer);
 
     point_t *points = point_rand(N_POINT, TEXTURE_W, TEXTURE_H);
     int n_ch = 0;
@@ -82,7 +54,7 @@ int main(void) {
                     break;
             }
         }
-        render_texture(renderer, points_texture, points, ch, n_ch, color);
+        render_texture(renderer, points_texture, points, N_POINT, ch, n_ch, color);
         render(renderer, points_texture);
     }
 
